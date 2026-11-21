@@ -1,0 +1,57 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": [
+    "app/**/{page,layout,template,loading,error,global-error,not-found,route,sitemap,robots,manifest,opengraph-image,twitter-image,icon,apple-icon}.{ts,tsx}",
+    "app/**/middleware.ts",
+    "middleware.ts",
+    "instrumentation.ts",
+    "instrumentation-client.ts",
+    "next.config.ts",
+    "vitest.config.ts",
+    "vitest.setup.ts",
+    "playwright.config.ts",
+    "playwright.playback.config.ts",
+    "vite.playback.config.ts",
+    "tests/**/*.{test,spec}.{ts,tsx}",
+    "tests/e2e/**/*.spec.ts",
+    "stories/**/*.{ts,tsx}",
+    "**/*.stories.{ts,tsx}",
+    ".storybook/**/*.{ts,tsx}",
+    "scripts/**/*.{ts,js,mjs}"
+  ],
+  "project": ["**/*.{ts,tsx,js,mjs,cjs}"],
+  "ignore": [
+    ".next/**",
+    "node_modules/**",
+    "coverage/**",
+    "playwright-report/**",
+    "test-results/**",
+    "storybook-static/**",
+    "out/**",
+    "eslint-report.json"
+  ],
+  "ignoreDependencies": [
+    "@types/*",
+    "tailwindcss",
+    "@tailwindcss/postcss",
+    "postcss",
+    "autoprefixer",
+    "eslint-config-next",
+    "husky",
+    "lint-staged",
+    "chromatic",
+    "@storybook/*",
+    "storybook",
+    "@next/bundle-analyzer",
+    "baseline-browser-mapping",
+    "babel-plugin-react-compiler"
+  ],
+  "ignoreExportsUsedInFile": true,
+  "rules": {
+    "files": "warn",
+    "dependencies": "warn",
+    "devDependencies": "warn",
+    "exports": "warn",
+    "types": "warn"
+  }
+}

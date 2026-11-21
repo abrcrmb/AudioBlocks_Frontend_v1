@@ -1,0 +1,73 @@
+name: knip
+
+# PERF-08: a dependency audit that reports rather than blocks, at first.
+#
+# The repository has accumulated exports and dependencies that nothing imports;
+# turning a hard gate on before that backlog is cleared would make every pull
+# request red for reasons unrelated to its change. The report is uploaded and
+# summarised on the run page, and **docs/KNIP.md** says when it becomes a gate.
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: knip-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    name: Unused files, exports and dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci --legacy-peer-deps
+
+      - name: Run knip
+        # Pinned: a new major can add rules and change the report shape.
+        # `--no-exit-code` keeps the job green while the backlog is cleared.
+        run: npx --yes knip@5 --reporter json --no-progress --no-exit-code > knip-report.json || true
+
+      - name: Summarise
+        if: always()
+        run: |
+          node - <<'NODE'
+          const fs = require('node:fs');
+          if (!fs.existsSync('knip-report.json')) {
+            console.log('No report produced.');
+            process.exit(0);
+          }
+          const report = JSON.parse(fs.readFileSync('knip-report.json', 'utf8'));
+          const counts = {
+            files: report.files?.length ?? 0,
+            dependencies: report.dependencies?.length ?? 0,
+            devDependencies: report.devDependencies?.length ?? 0,
+            unlisted: report.unlisted?.length ?? 0,
+            exports: report.exports?.length ?? 0,
+            types: report.types?.length ?? 0,
+          };
+          const lines = Object.entries(counts).map(([k, v]) => `| ${k} | ${v} |`);
+          const summary = ['| Category | Count |', '|:--|--:|', ...lines].join('\n');
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `## knip\n\n${summary}\n\nSee the uploaded report for the details.\n`);
+          console.log(summary);
+          NODE
+
+      - name: Keep the report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: knip-report
+          path: knip-report.json
+          if-no-files-found: ignore
+          retention-days: 30

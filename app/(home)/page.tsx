@@ -23,6 +23,13 @@ export const metadata: Metadata = {
   },
 };
 
+/**
+ * PERF-05: the public landing page is the same for every visitor and its data
+ * arrives after hydration, so the HTML shell can be cached and revalidated
+ * every five minutes. `docs/ISR.md` says what this does and does not cover.
+ */
+export const revalidate = 300;
+
 export default function Home() {
   return (
     <>

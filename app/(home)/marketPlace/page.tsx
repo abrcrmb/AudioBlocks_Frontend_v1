@@ -3,6 +3,13 @@ import NftCollections from '@/components/common/NftCollections';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import type { Metadata } from 'next';
 
+/**
+ * PERF-05: public, visitor-independent HTML shell, revalidated every five
+ * minutes. The listings themselves are fetched in the browser, so this caches
+ * the page around them rather than the catalogue — see `docs/ISR.md`.
+ */
+export const revalidate = 300;
+
 const TITLE = 'Marketplace | AudioBlocks';
 const DESCRIPTION =
   'Explore and purchase unique audio-inspired NFTs, sound packs, and digital art on the AudioBlocks marketplace.';
